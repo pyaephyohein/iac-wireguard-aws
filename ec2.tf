@@ -16,7 +16,7 @@ ansible_python_interpreter = /usr/bin/python3
 ssh_args = -o StrictHostKeyChecking=no -oCompression=yes
 inventory = ./inventory
 EOF
-provisioner "local-exec" {command = "ansible-playbook -i ./ansible-wireguard/inventory -v ./ansible-wireguard/run.yaml"}
-provisioner "local-exec" {command = "rm -r ./ansible-wireguard/inventory"}
+provisioner "local-exec" {command = "sleep 10 && ansible-playbook -i ./ansible-wireguard/inventory -v ./ansible-wireguard/run.yaml"}
+# provisioner "local-exec" {command = "rm -r ./ansible-wireguard/inventory"}
 }
 
