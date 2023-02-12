@@ -1,0 +1,49 @@
+---
+- name: Install Wireguard
+  become_user: root
+  apt:
+    name: wireguard
+    state: latest
+- name: Generate - public and priveare key
+  become_user: root
+  shell: umask 077; sudo wg genkey | sudo tee /etc/wireguard/privatekey | wg pubkey  | sudo tee /etc/wireguard/publickey
+
+- name: forward sys ipv4
+  become_user: root
+  shell: sysctl -w net.ipv4.ip_forward=1
+
+- name: system.conf
+  become_user: root
+  shell: sysctl -A | sudo tee /etc/sysctl.conf
+
+- name: copy wg0.conf
+  become_user: root
+  copy:
+    src: ./wg0.conf
+    dest: /etc/wireguard/wg0.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Import Service Port
+  become_user: root
+  shell: echo "ListenPort = 51820" >> /etc/wireguard/wg0.conf
+- name: Import Post UP
+  become_user: root
+  shell: echo "PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o $(ip -br l | awk '$1 ~ "e" { print $1}') -j MASQUERADE" >> /etc/wireguard/wg0.conf
+
+- name: Import Post Down
+  become_user: root
+  shell: echo "PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -D POSTROUTING -o $(ip -br l | awk '$1 ~ "e" { print $1}') -j MASQUERADE" >> /etc/wireguard/wg0.conf
+
+- name: Import private key
+  become_user: root
+  shell: echo "PrivateKey = $(sudo cat /etc/wireguard/privatekey)" >> /etc/wireguard/wg0.conf
+
+- name: Start wg0
+  become_user: root
+  systemd:
+    name: wg-quick@wg0
+    state: started
+    enabled: yes
+  

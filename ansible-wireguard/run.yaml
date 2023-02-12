@@ -1,0 +1,7 @@
+- hosts: wireguard
+  become: true
+  roles:
+    - { role: apt, tags: 'apt' }
+    - { role: ufw, tags: 'ufw' }
+    - { role: wireguard, tags: 'wireguard'}
+    - { role: wireguard-ui, tags: 'wireguard-ui'}

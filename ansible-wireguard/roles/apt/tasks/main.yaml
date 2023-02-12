@@ -1,0 +1,19 @@
+---
+- name: timesync
+  become_user: root
+  shell: timedatectl set-timezone Asia/Yangon
+- name: apt-get update
+  become_user: root
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+- name: apt-get upgrade
+  become_user: root
+  apt:
+    upgrade: dist
+- name: apt install python3-pip
+  become_user: root
+  apt:
+    name: python3-pip
+    state: latest

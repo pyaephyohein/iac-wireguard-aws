@@ -1,0 +1,13 @@
+[Unit]
+Description=wireguard-ui service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+Environment=WGUI_PASSWORD=admin
+ExecStart=/usr/local/bin/wireguard-ui
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,51 @@
+---
+- name: Download wireguard-ui
+  become_user: root
+  shell: wget https://github.com/ngoduykhanh/wireguard-ui/releases/download/v0.3.2/wireguard-ui-v0.3.2-linux-amd64.tar.gz -P /tmp/
+
+- name: unzip wireguard-ui
+  become_user: root
+  shell: tar -xzvf /tmp/wireguard-ui-v0.3.2-linux-amd64.tar.gz --directory=/tmp/
+
+- name: copy to bin/ wireguard-ui
+  become_user: root
+  shell: mv /tmp/wireguard-ui /usr/local/bin/
+
+- name: copy wgui.service
+  become_user: root
+  copy:
+    src: ./wgui.service
+    dest: /etc/systemd/system/
+
+- name: copy wg-autoreload.path
+  become_user: root
+  copy:
+    src: ./wg-autoreload.path
+    dest: /etc/systemd/system/
+
+- name: copy wg-autoreload.service
+  become_user: root
+  copy:
+    src: ./wg-autoreload.service
+    dest: /etc/systemd/system/
+
+- name: Start wgui.service
+  become_user: root
+  systemd:
+    name: wgui.service
+    state: started
+    enabled: yes
+
+- name: Start wg-autoreload.service
+  become_user: root
+  systemd:
+    name: wg-autoreload.service
+    state: started
+    enabled: yes
+
+- name: Start wg-autoreload.path
+  become_user: root
+  systemd:
+    name: wg-autoreload.path
+    state: started
+    enabled: yes
